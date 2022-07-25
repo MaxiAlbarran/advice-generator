@@ -1,42 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import { Button, Container, Stack, Text, Spinner } from "@chakra-ui/react";
+
+import useFetch from "./hooks/useFetch";
 
 import Advice_icon from './icons/Advice_icon';
 import Divider_icon from './icons/Divider_icon';
 
-interface ADVICE {
-  id : number,
-  advice: string
-}
-
 const App:React.FC = () =>  {
 
-  const [phrase, setPhrase] = useState<ADVICE>();
-
-  const [flag, setFlag] = useState<boolean>(false);
+  const [flag, setFlag] = useState<boolean>(false); // Cuando cambia se realiza otro pedido a la api
   const [newAdvice, setNewAdvice] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
 
-  const getAdvice = async () =>{
-    try{
-      setLoading(true);
+  const {phrase, loading} = useFetch(flag);
   
-      const response = await fetch("https://api.adviceslip.com/advice");
-      const document = await response.json();
-  
-      setPhrase(document.slip);
-      setLoading(false);
-
-    }catch(e){
-      console.log(e);
-    }
-  }
-  
-  useEffect(() => {
-    getAdvice();
-  }, [flag]) 
-
   const handleClick = () =>{
 
     setNewAdvice(true);
@@ -45,7 +22,6 @@ const App:React.FC = () =>  {
     setTimeout(() => {
       setNewAdvice(false);
     }, 2000);   //Se deshabilita el boton durante dos segundos, que es lo que tarda la api en generar un nuevo consejo
-
 
   }
   
