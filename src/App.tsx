@@ -2,22 +2,25 @@ import { useState } from "react";
 
 import { Button, Container, Stack, Text, Spinner } from "@chakra-ui/react";
 
-import useFetch from "./hooks/useFetch";
-
 import Advice_icon from './icons/Advice_icon';
 import Divider_icon from './icons/Divider_icon';
+import { useQuery } from "@tanstack/react-query";
 
 const App:React.FC = () =>  {
-
-  const [flag, setFlag] = useState<boolean>(false); // Cuando cambia se realiza otro pedido a la api
+  
   const [newAdvice, setNewAdvice] = useState<boolean>(false);
 
-  const {phrase, loading} = useFetch(flag);
-  
+  const getAdvice = async () => {
+    const response = await fetch("https://api.adviceslip.com/advice");
+    return response.json();
+  }
+
+  const {data, isLoading, refetch} = useQuery(["advice"], getAdvice, {refetchOnWindowFocus:false});
+
   const handleClick = () =>{
 
     setNewAdvice(true);
-    setFlag(flag ? false : true);
+    refetch();
 
     setTimeout(() => {
       setNewAdvice(false);
@@ -25,24 +28,24 @@ const App:React.FC = () =>  {
 
   }
   
-  return (
+  return (    
     <Container maxW="container.xl" minH="100vh" bgColor="hsl(218, 23%, 16%)" padding="10px" display="flex" justifyContent="center" alignItems="center">
 
         <Stack padding="30px" spacing={8} bgColor="hsl(217, 19%, 24%)" maxW={["100%", "80%", "40%", "40%"]}  borderRadius="xl">
         
         {
-          loading ?
+          isLoading ?
             <Spinner color="hsl(150, 100%, 66%)" size="xl" padding="5px" margin="0 auto"/>
           :
             <>
             <Stack align="center" justify="center" >
               <Text color="hsl(150, 100%, 66%)" fontFamily="'Work Sans', sans-serif">           
               
-              ADVICE #{' '}{phrase?.id} </Text>            
+              ADVICE #{' '}{data.slip?.id} </Text>            
             </Stack> 
 
             <Stack display="flex" justifyContent="center" alignItems="center" textAlign="center">            
-                <Text color="hsl(193, 38%, 86%)" fontFamily="'Manrope', Arial" fontSize="28px"> {phrase?.advice} </Text>                                   
+                <Text color="hsl(193, 38%, 86%)" fontFamily="'Manrope', Arial" fontSize="28px"> {data.slip?.advice} </Text>                                   
             </Stack> 
             </>
         }
